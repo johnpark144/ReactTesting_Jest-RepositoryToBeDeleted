@@ -1,35 +1,31 @@
 import { useState } from "react";
-import "./App.css";
+import OrderConfirmation from "./pages/confirmation/OrderConfirmation";
+import OrderEntry from "./pages/entry/OrderEntry";
+import OrderSummary from "./pages/summary/OrderSummary";
 
-export const replaceCamelWithSpaces = (colorName) => {
-  return colorName.replace(/\B([A-Z])\B/g, " $1");
-};
+import { OrderDetailsProvider } from "./contexts/OrderDetails";
 
 function App() {
-  const [btnColor, setBtnColor] = useState("MediumVioletRed");
-  const [isDisabled, setIsDisabled] = useState(false);
-  const newBtnColor =
-    btnColor === "MediumVioletRed" ? "MidnightBlue" : "MediumVioletRed";
+  const [orderPhase, setOrderPhase] = useState("inProgress");
+
+  let Component = OrderEntry; // default to order page
+  switch (orderPhase) {
+    case "inProgress":
+      Component = OrderEntry;
+      break;
+    case "review":
+      Component = OrderSummary;
+      break;
+    case "completed":
+      Component = OrderConfirmation;
+      break;
+    default:
+  }
 
   return (
-    <div>
-      <button
-        disabled={isDisabled}
-        onClick={() => setBtnColor(newBtnColor)}
-        style={{ backgroundColor: isDisabled ? "gray" : btnColor }}
-      >
-        Change to {newBtnColor}
-      </button>
-      <input
-        onChange={(e) => {
-          setIsDisabled(e.target.checked);
-        }}
-        type="checkbox"
-        id="disable-button-checkbox"
-        defaultChecked={isDisabled}
-      />
-      <label htmlFor="disable-button-checkbox">Disable button</label>
-    </div>
+    <OrderDetailsProvider>
+      <div>{<Component setOrderPhase={setOrderPhase} />}</div>
+    </OrderDetailsProvider>
   );
 }
 
